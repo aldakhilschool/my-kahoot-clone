@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>لوحة المعلم</title>
+    <script src="/socket.io/socket.io.js"></script>
+    <style>
+        body { font-family: sans-serif; background: #f4f4f9; padding: 20px; }
+        .container { max-width: 600px; margin: auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        input { width: 100%; padding: 10px; margin: 5px 0; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
+        button { background: #46178f; color: white; border: none; padding: 10px; width: 100%; border-radius: 5px; cursor: pointer; margin-top: 10px; }
+        .q-item { background: #eee; padding: 10px; margin-top: 10px; border-radius: 5px; display: flex; justify-content: space-between; }
+        .send-btn { background: #26890c; width: auto; padding: 5px 15px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>لوحة تحكم المعلم 🛠️</h2>
+        <input type="text" id="qText" placeholder="نص السؤال">
+        <input type="text" id="o1" placeholder="الخيار 1">
+        <input type="text" id="o2" placeholder="الخيار 2">
+        <input type="text" id="o3" placeholder="الخيار 3">
+        <input type="text" id="o4" placeholder="الخيار 4">
+        <button onclick="add()">إضافة لقائمة الأسئلة</button>
+        
+        <div id="list"></div>
+    </div>
+
+    <script>
+        const socket = io();
+        let questions = [];
+
+        function add() {
+            const q = {
+                text: document.getElementById('qText').value,
+                opts: [
+                    document.getElementById('o1').value,
+                    document.getElementById('o2').value,
+                    document.getElementById('o3').value,
+                    document.getElementById('o4').value
+                ]
+            };
+            questions.push(q);
+            render();
+        }
+
+        function render() {
+            const div = document.getElementById('list');
+            div.innerHTML = '<h3>الأسئلة الجاهزة:</h3>';
+            questions.forEach((q, i) => {
+                div.innerHTML += `
+                    <div class="q-item">
+                        <span>${q.text}</span>
+                        <button class="send-btn" onclick="send(${i})">بث السؤال الآن 🚀</button>
+                    </div>`;
+            });
+        }
+
+        function send(i) {
+            socket.emit('sendQuestion', questions[i]);
+        }
+    </script>
+</body>
+</html>
