@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>شاشة العرض - كاهوت</title>
+    <script src="/socket.io/socket.io.js"></script>
+    <style>
+        body { font-family: sans-serif; margin: 0; background: #f2f2f2; text-align: center; }
+        .header { background: white; padding: 40px; font-size: 2.5rem; font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 20px; max-width: 1000px; margin: auto; height: 50vh; }
+        .opt { color: white; font-size: 1.8rem; font-weight: bold; display: flex; align-items: center; padding: 20px; border-radius: 8px; }
+        .o1 { background: #e21b3c; } .o2 { background: #1368ce; } .o3 { background: #d89e00; } .o4 { background: #26890c; }
+        #timer { font-size: 2rem; background: #46178f; color: white; width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 20px auto; }
+    </style>
+</head>
+<body>
+    <div id="start-screen">
+        <h1 style="margin-top:100px; color:#46178f;">انتظار انضمام اللاعبين...</h1>
+        <div id="player-list" style="font-size:1.5rem;"></div>
+    </div>
+
+    <div id="game-screen" style="display:none;">
+        <div class="header" id="q-text">السؤال يظهر هنا</div>
+        <div id="timer">20</div>
+        <div class="grid">
+            <div class="opt o1"><span>▲</span> <span id="t1" style="margin-right:15px;"></span></div>
+            <div class="opt o2"><span>◆</span> <span id="t2" style="margin-right:15px;"></span></div>
+            <div class="opt o3"><span>●</span> <span id="t3" style="margin-right:15px;"></span></div>
+            <div class="opt o4"><span>■</span> <span id="t4" style="margin-right:15px;"></span></div>
+        </div>
+    </div>
+
+    <script>
+        const socket = io();
+        socket.on('updatePlayerList', (players) => {
+            document.getElementById('player-list').innerText = "الموجودون: " + players.map(p => p.name).join(', ');
+        });
+
+        socket.on('receiveQuestion', (data) => {
+            document.getElementById('start-screen').style.display = 'none';
+            document.getElementById('game-screen').style.display = 'block';
+            document.getElementById('q-text').innerText = data.text;
+            document.getElementById('t1').innerText = data.opts[0];
+            document.getElementById('t2').innerText = data.opts[1];
+            document.getElementById('t3').innerText = data.opts[2];
+            document.getElementById('t4').innerText = data.opts[3];
+        });
+    </script>
+</body>
+</html>
